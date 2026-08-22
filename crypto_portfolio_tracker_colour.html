@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Crypto Portfolio</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;background:#eef1f7;color:#172033}
+.wrap{max-width:780px;margin:auto;padding:18px 15px 40px}.hero{border-radius:24px;padding:22px;color:white;background:linear-gradient(135deg,#4f46e5,#7c3aed 55%,#a855f7);box-shadow:0 12px 30px #4f46e533}
+h1{margin:0;font-size:30px}.hero .small{opacity:.85;margin-top:4px}.total{font-size:38px;font-weight:800;margin-top:22px}.usd{font-size:18px;opacity:.9}
+.card{background:#fff;border-radius:20px;padding:18px;margin-top:14px;box-shadow:0 5px 18px #17203310}h2{font-size:20px;margin:0 0 14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{background:#f7f8fc;border-radius:14px;padding:13px}.metric span{font-size:12px;color:#697386}.metric b{display:block;font-size:20px;margin-top:5px}
+.coincard{border:1px solid #e6e9f0;border-radius:17px;padding:14px;margin:12px 0}.coinhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.coin{font-size:21px;font-weight:800}.tag{font-size:11px;padding:5px 8px;border-radius:999px;background:#ede9fe;color:#5b21b6}
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}label{font-size:12px;color:#697386}input{width:100%;margin-top:5px;padding:11px;border:1px solid #d9dee8;border-radius:10px;font-size:16px;background:#fff}
+.green{color:#14804a!important}.red{color:#c62828!important}.muted{color:#697386}.bench{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{border:0;border-radius:12px;padding:12px 16px;background:#172033;color:white;font-size:15px;font-weight:650}.status{font-size:12px;color:#697386;margin-left:8px}
+.footer{font-size:12px;color:#697386;line-height:1.45;margin-top:12px}
+@media(max-width:520px){.grid,.bench,.inputs{grid-template-columns:1fr}.total{font-size:34px}}
+</style></head><body><div class="wrap">
+<div class="hero"><h1>Crypto Portfolio</h1><div class="small">Live HBAR + XRP tracker</div><div class="total" id="totalGbp">£—</div><div class="usd" id="totalUsd">$—</div></div>
+
+<div class="card"><h2>Portfolio today</h2><div class="grid">
+<div class="metric"><span>24h change</span><b id="dayGbp">—</b></div><div class="metric"><span>24h %</span><b id="dayPct">—</b></div>
+</div></div>
+
+<div class="card"><h2>Your holdings</h2>
+<div class="coincard"><div class="coinhead"><div class="coin">HBAR</div><div class="tag">YOUR HOLDING</div></div>
+<div class="inputs"><div><label>Amount</label><input id="hbarAmt" type="number" step="any"></div><div><label>Average buy price ($)</label><input id="hbarAvg" type="number" step="any" placeholder="Optional"></div></div>
+<div class="grid"><div class="metric"><span>Live price</span><b id="hbarPrice">—</b><small id="hbarUsd">—</small></div><div class="metric"><span>Current value</span><b id="hbarValue">—</b><small id="hbarValueUsd">—</small></div></div>
+<div class="metric" style="margin-top:12px"><span>Profit / loss</span><b id="hbarPnl">Enter average buy price</b><small id="hbarPnlUsd"></small></div></div>
+
+<div class="coincard"><div class="coinhead"><div class="coin">XRP</div><div class="tag">YOUR HOLDING</div></div>
+<div class="inputs"><div><label>Amount</label><input id="xrpAmt" type="number" step="any"></div><div><label>Average buy price ($)</label><input id="xrpAvg" type="number" step="any" placeholder="Optional"></div></div>
+<div class="grid"><div class="metric"><span>Live price</span><b id="xrpPrice">—</b><small id="xrpUsd">—</small></div><div class="metric"><span>Current value</span><b id="xrpValue">—</b><small id="xrpValueUsd">—</small></div></div>
+<div class="metric" style="margin-top:12px"><span>Profit / loss</span><b id="xrpPnl">Enter average buy price</b><small id="xrpPnlUsd"></small></div></div>
+</div>
+
+<div class="card"><h2>Market benchmarks — USD</h2><div class="bench">
+<div class="metric"><span>Bitcoin (BTC)</span><b id="btcPrice">$—</b><small id="btcPct">—</small></div>
+<div class="metric"><span>Ethereum (ETH)</span><b id="ethPrice">$—</b><small id="ethPct">—</small></div>
+</div></div>
+
+<div class="card"><button onclick="refresh()">↻ Refresh prices</button><span class="status" id="status">Starting…</span>
+<div class="footer">Prices use CoinGecko market data. The app is read-only: it cannot trade, withdraw or access wallets. Your editable holdings are stored locally on this device.</div></div>
+</div>
+<script>
+const defaults={hbarAmt:"90000",hbarAvg:"",xrpAmt:"12000",xrpAvg:""};
+let s=JSON.parse(localStorage.getItem("cpv2")||"null")||defaults, d=null;
+for(const k in defaults){let e=document.getElementById(k);e.value=s[k]??"";e.oninput=()=>{s[k]=e.value;localStorage.setItem("cpv2",JSON.stringify(s));render()}}
+const gbp=n=>n==null?"—":n.toLocaleString("en-GB",{style:"currency",currency:"GBP",maximumFractionDigits:2});
+const usd=n=>n==null?"—":n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2});
+function colour(id,n){let e=document.getElementById(id);e.classList.remove("green","red");if(Number.isFinite(n))e.classList.add(n>=0?"green":"red")}
+function put(id,x){document.getElementById(id).textContent=x}
+function render(){
+ if(!d)return; const fx=d.usd.gbp; let tu=0,tg=0,td=0;
+ [["hedera","hbar"],["ripple","xrp"]].forEach(([coin,x])=>{
+  const a=Number(s[x+"Amt"])||0, avg=Number(s[x+"Avg"]), p=d[coin].usd, q=d[coin].gbp, ch=d[coin].usd_24h_change;
+  const vu=a*p, vg=a*q; tu+=vu;tg+=vg;td+=vu*ch/100;
+  put(x+"Price",gbp(q));put(x+"Usd",usd(p)+" • "+(ch>=0?"+":"")+ch.toFixed(2)+"%");put(x+"Value",gbp(vg));put(x+"ValueUsd",usd(vu));
+  if(Number.isFinite(avg)&&avg>0){let pu=a*(p-avg),pg=pu*fx;put(x+"Pnl",gbp(pg));put(x+"PnlUsd",usd(pu));colour(x+"Pnl",pu)}else{put(x+"Pnl","Enter average buy price");put(x+"PnlUsd","")}
+ });
+ const pct=tu?td/tu*100:0;put("totalGbp",gbp(tg));put("totalUsd",usd(tu));put("dayGbp",gbp(td*fx));put("dayPct",(pct>=0?"+":"")+pct.toFixed(2)+"%");colour("dayGbp",td);colour("dayPct",td);
+ [["bitcoin","btc"],["ethereum","eth"]].forEach(([coin,x])=>{let ch=d[coin].usd_24h_change;put(x+"Price",usd(d[coin].usd));put(x+"Pct",(ch>=0?"+":"")+ch.toFixed(2)+"% today");colour(x+"Pct",ch)})
+}
+async function refresh(){
+ put("status","Updating…");
+ try{
+  const u="https://api.coingecko.com/api/v3/simple/price?ids=hedera,ripple,bitcoin,ethereum&vs_currencies=usd,gbp&include_24hr_change=true";
+  const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);d=await r.json();render();put("status","Updated "+new Date().toLocaleTimeString("en-GB"));
+ }catch(e){put("status","Price update failed — try again");}
+}
+refresh();setInterval(refresh,60000);
+</script></body></html>
