@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Crypto Portfolio V31</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef2f7;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+.wrap{max-width:820px;margin:auto;padding:18px 15px 40px}.hero{background:#172033;color:white;border-radius:24px;padding:22px;margin-bottom:14px}
+h1{margin:0;font-size:30px}.sub{opacity:.8;margin-top:5px}.status{margin-top:14px;font-weight:700}.dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:#e33;margin-right:7px}.live .dot{background:#21a366}.offline .dot{background:#d32f2f}
+.card{background:white;border-radius:20px;padding:18px;margin-top:14px;box-shadow:0 5px 18px #0000000d}.greenCard{background:#e9f8ee}.blueCard{background:#e8f1ff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{background:#ffffffd9;border-radius:16px;padding:15px}.label{font-size:14px;color:#697386}.big{font-size:29px;font-weight:800;margin-top:5px}.value{font-size:23px;font-weight:750;margin-top:5px}.muted{color:#697386}.up{color:#14804a!important}.down{color:#c62828!important}
+.coin{font-size:24px;font-weight:800}.tag{float:right;font-size:14px}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}label{font-size:14px;color:#697386}input{width:100%;padding:12px;border:1px solid #d4dae3;border-radius:14px;font-size:18px;background:white}
+.movers{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mover{padding:14px;border-radius:15px;background:#fff}.mover b{font-size:18px}.mover .pct{font-size:20px;margin-top:4px}.note{font-size:13px;color:#697386;margin-top:14px}
+.lock{position:fixed;inset:0;background:linear-gradient(135deg,#20205f,#4b25a8);display:flex;align-items:center;justify-content:center;z-index:10;padding:14px}
+.lockTitle{margin:0;color:#172033;font-size:44px;font-weight:800;line-height:1.1}
+.lockTitle .lockIcon{font-size:42px;vertical-align:2px;margin-right:8px}
+.lockSub{font-size:25px;color:#172033;margin:18px 0 22px}
+.loginWarn{color:#b23a3a;font-size:22px;margin:18px 0 12px}
+.keypad button{border:0;border-radius:22px;background:#eef0ff;color:#2688e8;font-size:36px;padding:18px 10px;min-height:92px;cursor:pointer;font-family:inherit}
+.pinError{height:22px;color:#b23a3a;font-size:16px;margin-top:8px}
+@media(max-width:520px){.lock{padding:10px}.lockTitle{font-size:34px}.lockTitle .lockIcon{font-size:34px}.lockSub{font-size:21px;margin:16px 0 22px}}
+
+/* V19: compact login keypad matching the previous design */
+.login-card{
+  width:min(720px, calc(100% - 28px));
+  margin:12px auto;
+  padding:28px 24px 24px;
+}
+#keypad.keypad button{
+  min-height:68px;
+  font-size:30px;
+  border-radius:18px;
+}
+@media (max-width:520px){
+  .login-card{
+    width:calc(100% - 24px);
+    padding:24px 18px 20px;
+  }
+  #keypad.keypad button{
+    min-height:60px;
+    font-size:27px;
+    border-radius:16px;
+  }
+}
+#keypad.keypad button{
+  min-height:54px !important;
+  height:54px !important;
+  font-size:25px !important;
+  border-radius:14px !important;
+}
+@media (max-width:520px){
+  #keypad.keypad{
+    width:320px !important;
+    max-width:78% !important;
+    gap:7px !important;
+  }
+}
+#keypad.keypad button{
+  min-height:92px !important;
+  height:92px !important;
+  font-size:34px !important;
+  border-radius:20px !important;
+}
+@media(max-width:520px){
+  .lockbox{
+    width:calc(100vw - 32px) !important;
+    max-width:calc(100vw - 32px) !important;
+    padding:24px 18px 26px !important;
+  }
+  #keypad.keypad button{
+    min-height:64px !important;
+    height:64px !important;
+    font-size:27px !important;
+    border-radius:16px !important;
+  }
+}
+.lockTitle{font-size:36px !important}
+.lockTitle .lockIcon{font-size:36px !important}
+.lockSub{font-size:22px !important;margin:14px 0 18px !important}
+.loginWarn{font-size:19px !important;margin:14px 0 10px !important}
+#keypad.keypad button{
+  min-height:58px !important;
+  height:58px !important;
+  padding:8px !important;
+  font-size:27px !important;
+  border-radius:15px !important;
+}
+
+@media(max-width:520px){
+  .lock{
+    padding:10px !important;
+  }
+  .lockTitle{font-size:29px !important}
+  .lockTitle .lockIcon{font-size:29px !important}
+  .lockSub{font-size:18px !important;margin:12px 0 16px !important}
+  .loginWarn{font-size:16px !important;margin:11px 0 8px !important}
+  #keypad.keypad button{
+    min-height:48px !important;
+    height:48px !important;
+    font-size:23px !important;
+    border-radius:12px !important;
+  }
+}
+
+
+#lock{position:fixed;inset:0;background:linear-gradient(135deg,#111827,#312e81,#6d28d9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.lockbox{width:min(360px,100%);background:#fff;border-radius:24px;padding:24px;text-align:center;box-shadow:0 20px 60px #0005}
+.pin{font-size:30px;letter-spacing:8px;text-align:center;width:100%;padding:12px;border:1px solid #d1d5db;border-radius:12px;margin:16px 0}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.keypad button{font-size:22px;padding:14px;border:0;border-radius:12px;background:#eef2ff}
+.lockmsg{height:20px;font-size:13px;color:#b91c1c}
+.locked{display:none!important}
+/* V8 keypad reference — authoritative lock-screen styling */
+#lock{
+  position:fixed!important;inset:0!important;
+  background:linear-gradient(135deg,#111827,#312e81,#6d28d9)!important;
+  z-index:9999!important;display:flex!important;
+  align-items:center!important;justify-content:center!important;padding:20px!important;
+}
+#lock .lockbox{
+  width:min(360px,100%)!important;background:#fff!important;
+  border-radius:24px!important;padding:24px!important;text-align:center!important;
+  box-shadow:0 20px 60px #0005!important;
+}
+#lock .lockbox h2{margin:0 0 6px!important}
+#lock .pin{
+  font-size:30px!important;letter-spacing:8px!important;text-align:center!important;
+  width:100%!important;padding:12px!important;border:1px solid #d1d5db!important;
+  border-radius:12px!important;margin:16px 0!important;box-sizing:border-box!important;
+}
+#lock .keypad{
+  display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:9px!important;
+}
+#lock .keypad button{
+  font-size:22px!important;padding:14px!important;border:0!important;
+  border-radius:12px!important;background:#eef2ff!important;
+  min-height:0!important;height:auto!important;box-sizing:border-box!important;
+  cursor:pointer!important;font-family:inherit!important;color:#2688e8!important;
+}
+#lock .lockmsg{height:20px!important;font-size:13px!important;color:#b91c1c!important}
+#lock .locked{display:none!important}
+@media(max-width:520px){
+  #lock .lockbox{width:min(360px,100%)!important}
+  #lock .keypad{gap:9px!important}
+  #lock .keypad button{font-size:22px!important;padding:14px!important;min-height:0!important}
+}
+
+.version-ref-v25{
+  text-align:right;
+  font-size:10px;
+  color:#9ca3af;
+  margin-top:4px;
+  letter-spacing:.3px;
+  user-select:none;
+}
+#lock{position:fixed;inset:0;background:linear-gradient(135deg,#111827,#312e81,#6d28d9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.lockbox{width:min(360px,100%);background:#fff;border-radius:24px;padding:24px;text-align:center;box-shadow:0 20px 60px #0005}
+.pin{font-size:30px;letter-spacing:8px;text-align:center;width:100%;padding:12px;border:1px solid #d1d5db;border-radius:12px;margin:16px 0}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.keypad button{font-size:22px;padding:14px;border:0;border-radius:12px;background:#eef2ff}
+.lockmsg{height:20px;font-size:13px;color:#b91c1c}
+.locked{display:none!important}#lock{position:fixed;inset:0;background:linear-gradient(135deg,#111827,#312e81,#6d28d9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.lockbox{width:min(360px,100%);background:#fff;border-radius:24px;padding:24px;text-align:center;box-shadow:0 20px 60px #0005}
+.pin{font-size:30px;letter-spacing:8px;text-align:center;width:100%;padding:12px;border:1px solid #d1d5db;border-radius:12px;margin:16px 0}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.keypad button{font-size:22px;padding:14px;border:0;border-radius:12px;background:#eef2ff}
+.lockmsg{height:20px;font-size:13px;color:#b91c1c}
+.locked{display:none!important}</style>
+<meta name="portfolio-build" content="V31"></head>
+<body>
+<div id="lock"><div class="lockbox"><h2>🔐 Crypto Portfolio</h2><div>Enter today's 5-digit PIN</div><input id="pinInput" class="pin" inputmode="numeric" maxlength="5" readonly><div class="lockmsg" id="lockMsg"></div><div class="keypad"><button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button data-k="C">⌫</button><button data-k="0">0</button><button data-k="OK">✓</button></div><div class="note" style="margin-top:12px">PIN changes automatically each day.</div></div></div><div class="wrap" id="app">
+<div class="hero">
+<h1>Crypto Portfolio</h1><div class="sub">Live Kraken market data</div>
+<div id="status" class="status offline"><span class="dot"></span><span id="statusText">Kraken offline</span></div>
+<div class="version-ref-v25">V31</div>
+
+<div class="card"><h2>Portfolio today</h2><div class="grid">
+<div class="metric"><div class="label">Portfolio value (USD)</div><div id="totalUsd" class="big">—</div><div id="totalGbp" class="muted">—</div></div>
+<div class="metric"><div class="label">Today's change</div><div id="dayPct" class="value">—</div><div id="dayValue" class="muted">—</div></div>
+</div></div>
+
+<div class="card greenCard"><h2>🟢 Your holdings</h2><div id="holdings"></div></div>
+
+<div class="card blueCard"><h2>🔵 Market benchmarks — USD</h2><div class="grid">
+<div class="metric"><div class="label">BTC</div><div id="btc">—</div></div>
+<div class="metric"><div class="label">ETH</div><div id="eth">—</div></div>
+</div></div>
+
+<div class="card"><h2>🔥 Top 4 movers today</h2><div id="movers" class="movers"><div class="muted">Loading…</div></div>
+<div class="note">Information only. HBAR and XRP can appear if they are among Kraken's top USD movers.</div></div>
+
+<div class="card"><div class="note">No Kraken login or API key is used. This tracker only reads public market data.</div></div>
+</div>
+
+<script>
+
+(function(){
+const lock=document.getElementById("lock"),input=document.getElementById("pinInput"),msg=document.getElementById("lockMsg");let unlocked=false,timer;
+function expectedPin(){const d=new Date().getDate(),s=String(d).padStart(2,"0"),four=s+s,sum=[...four].reduce((a,n)=>a+Number(n),0);return four+String(sum%10)}
+function check(){if(input.value===expectedPin()){unlocked=true;lock.classList.add("locked");input.value="";msg.textContent="";reset()}else{msg.textContent="Incorrect PIN";input.value=""}}
+function reset(){clearTimeout(timer);if(unlocked)timer=setTimeout(()=>{unlocked=false;lock.classList.remove("locked");input.value="";msg.textContent="Session locked after 1 minute."},60000)}
+document.querySelectorAll(".keypad button").forEach(b=>b.onclick=()=>{let k=b.dataset.k;if(k==="C")input.value=input.value.slice(0,-1);else if(k==="OK")check();else if(input.value.length<5)input.value+=k});
+["touchstart","click","keydown","mousemove"].forEach(ev=>document.addEventListener(ev,()=>{if(unlocked)reset()},{passive:true}));
+})();
+const defaults={hbarAmt:"94219",hbarAvg:"0.06",xrpAmt:"24000",xrpAvg:"0.735"};
+let state=JSON.parse(localStorage.getItem("cryptoV11")||"null")||defaults;
+let prices={}, opens={}, lastSeen=0, gbp=0.0;
+
+function pinForToday(){
+  // Daily PIN: DD + DD + final digit of all four DD digits added together.
+  // Example: 24 -> 2+4+2+4 = 12 -> PIN 24242.
+  const dd=String(new Date().getDate()).padStart(2,"0");
+  const sum=Number(dd[0])+Number(dd[1])+Number(dd[0])+Number(dd[1]);
+  return dd+dd+String(sum).slice(-1);
+}
+function addDigit(n){
+  const el=document.getElementById("pin");
+  if(el.value.length<5) el.value+=n;
+}
+function backspacePin(){const el=document.getElementById("pin");el.value=el.value.slice(0,-1);}
+function clearPin(){document.getElementById("pin").value="";document.getElementById("pinmsg").textContent="";}
+
+function unlock(){
+  if(document.getElementById("pin").value===pinForToday()){
+    sessionStorage.setItem("unlocked","1");document.getElementById("lock").style.display="none";
+    setTimeout(()=>{sessionStorage.removeItem("unlocked");location.reload()},60000);
+  }else document.getElementById("pinmsg").textContent="Incorrect PIN";
+}
+if(sessionStorage.getItem("unlocked")==="1")document.getElementById("lock").style.display="none";
+
+function usd(n){return n==null||!isFinite(n)?"—":n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2})}
+function gbpFmt(n){return n==null||!isFinite(n)?"—":n.toLocaleString("en-GB",{style:"currency",currency:"GBP",maximumFractionDigits:2})}
+function price(n){return n==null||!isFinite(n)?"—":"$"+n.toFixed(3)}
+function setStatus(on,text){document.getElementById("status").className="status "+(on?"live":"offline");document.getElementById("statusText").textContent=text}
+
+function save(){localStorage.setItem("cryptoV11",JSON.stringify(state))}
+function makeHolding(sym){
+  const id=sym.toLowerCase(), amt=Number(state[id+"Amt"]), avg=Number(state[id+"Avg"]), p=prices[sym], o=opens[sym];
+  const cur=amt*p, change=(p&&o)?(p/o-1)*100:null, valchg=(p&&o)?amt*(p-o):null, pnl=(p&&avg)?amt*(p-avg):null;
+  return `<div class="card" style="margin-top:12px">
+    <div><span class="coin">${sym}</span><span class="tag">HOLDING</span></div>
+    <div class="inputs">
+      <div><label>Amount</label><input id="${id}Amt" type="number" step="any" value="${state[id+"Amt"]}" onchange="state.${id}Amt=this.value;save();render()"></div>
+      <div><label>Average buy price ($)</label><input id="${id}Avg" type="number" step="0.001" value="${state[id+"Avg"]}" onchange="state.${id}Avg=this.value;save();render()"></div>
+    </div>
+    <div class="grid">
+      <div class="metric"><div class="label">Live price</div><div class="value">${price(p)}</div><div class="muted">${p&&gbp?gbpFmt(p*gbp):"—"}</div></div>
+      <div class="metric"><div class="label">Current value</div><div class="value">${usd(cur)}</div><div class="muted">${gbp?gbpFmt(cur*gbp):"—"}</div></div>
+    </div>
+    <div class="metric" style="margin-top:12px"><div class="label">Opening price (00:00 UK)</div><div class="value">${price(o)}</div><div class="muted">Start of today</div></div>
+    <div class="grid" style="margin-top:12px">
+      <div class="metric"><div class="label">Today</div><div class="value ${change>=0?"up":"down"}">${change==null?"—":(change>=0?"+":"")+change.toFixed(2)+"%"}</div><div class="muted">Price change</div></div>
+      <div class="metric"><div class="label">Today's value change</div><div class="value ${valchg>=0?"up":"down"}">${valchg==null?"—":(valchg>=0?"+":"")+usd(valchg)}</div><div class="muted">${valchg==null||!gbp?"—":(valchg>=0?"+":"")+gbpFmt(valchg*gbp)}</div></div>
+    </div>
+    <div class="metric" style="margin-top:12px"><div class="label">Profit / loss</div><div class="value ${pnl>=0?"up":"down"}">${pnl==null?"Add average buy price":(pnl>=0?"+":"")+usd(pnl)}</div></div>
+  </div>`;
+}
+function render(){
+  document.getElementById("holdings").innerHTML=makeHolding("HBAR")+makeHolding("XRP");
+  let total=0, day=0, base=0;
+  ["HBAR","XRP"].forEach(s=>{let a=Number(state[s.toLowerCase()+"Amt"]),p=prices[s],o=opens[s];if(p)total+=a*p;if(p&&o){day+=a*(p-o);base+=a*o}});
+  document.getElementById("totalUsd").textContent=usd(total);document.getElementById("totalGbp").textContent=gbp?gbpFmt(total*gbp):"—";
+  let pct=base?day/base*100:null;document.getElementById("dayPct").textContent=pct==null?"—":(pct>=0?"+":"")+pct.toFixed(2)+"%";
+  document.getElementById("dayPct").className="value "+(pct>=0?"up":"down");document.getElementById("dayValue").textContent=day==null?"—":(day>=0?"+":"")+usd(day);
+}
+async function getOpen(pair){
+  try{
+    const r=await fetch("https://api.kraken.com/0/public/OHLC?pair="+pair+"&interval=5",{cache:"no-store"});
+    const j=await r.json();const key=Object.keys(j.result||{}).find(k=>k!=="last");const rows=j.result?.[key];if(!rows)return null;
+    const now=new Date(), ukParts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/London",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(now);
+    const y=ukParts.find(x=>x.type==="year").value,m=ukParts.find(x=>x.type==="month").value,d=ukParts.find(x=>x.type==="day").value;
+    const midnight=new Date(`${y}-${m}-${d}T00:00:00`);
+    const target=midnight.getTime()/1000;
+    let best=rows.find(x=>Number(x[0])>=target);
+    return best?Number(best[1]):null;
+  }catch(e){return null}
+}
+async function refreshRest(){
+  try{
+    const r=await fetch("https://api.kraken.com/0/public/Ticker?pair=HBARUSD,XRPUSD,BTCUSD,ETHUSD",{cache:"no-store"});const j=await r.json();
+    const result=j.result||{};
+    for(const k of Object.keys(result)){
+      const x=result[k], p=Number(x.c?.[0]); if(k.includes("HBAR"))prices.HBAR=p;if(k.includes("XRP"))prices.XRP=p;if(k.includes("XBT")||k.includes("BTC"))prices.BTC=p;if(k.includes("ETH"))prices.ETH=p;
+    }
+    const fx=await fetch("https://open.er-api.com/v6/latest/USD",{cache:"no-store"});const fj=await fx.json();gbp=Number(fj.rates?.GBP)||0;
+    opens.HBAR=await getOpen("HBARUSD");opens.XRP=await getOpen("XRPUSD");
+    document.getElementById("btc").textContent=price(prices.BTC);document.getElementById("eth").textContent=price(prices.ETH);
+    render();setStatus(true,"Kraken live");lastSeen=Date.now();
+  }catch(e){setStatus(false,"Kraken offline")}
+}
+function updateMovers(){
+ try{
+   const r=await fetch("https://api.kraken.com/0/public/Ticker",{cache:"no-store"});
+   const j=await r.json();
+   const candidates=[];
+   const stable=new Set(["USDT","USDC","USDC2","USDT2","USDC3","USDG","DAI","EUR","GBP","USDE","PYUSD","TUSD","USDS"]);
+   for(const [pair,t] of Object.entries(j.result||{})){
+     // V5: only USD spot markets, so each coin is counted once.
+     if(!pair.endsWith("USD")) continue;
+     const last=Number(t.c?.[0]);
+     const open=Number(t.o);
+     const vol=Number(t.v?.[1] ?? t.v?.[0]);
+     if(!Number.isFinite(last)||!Number.isFinite(open)||open<=0||!Number.isFinite(vol)) continue;
+     const change=(last-open)/open*100;
+     if(change<=0) continue;
+     const raw=pair.slice(0,-3);
+     const symbol=raw.replace(/^XBT$/,"BTC").replace(/^X[A-Z]+/,"").replace(/^Z[A-Z]+/,"") || raw;
+     if(stable.has(symbol)) continue;
+
+     // V5 liquidity filter: at least $1m of 24h traded value.
+     const quoteVolume=vol*last;
+     if(quoteVolume<1000000) continue;
+     candidates.push({s:symbol,p:last,c:change,v:quoteVolume});
+   }
+
+   movers=candidates.sort((a,b)=>b.c-a.c).slice(0,4);
+   const box=document.getElementById("movers");
+   box.innerHTML=movers.length
+     ? movers.map(v=>`<div class="mover"><b>${v.s}</b><div class="up">+${v.c.toFixed(2)}%</div><div class="small">${usd(v.p)}</div></div>`).join("")
+     : "No qualifying positive movers";
+ }catch(e){
+   const box=document.getElementById("movers");
+   if(box) box.innerHTML="Waiting for Kraken market data…";
+ }
+}
+refreshRest();updateMovers();setInterval(refreshRest,15000);setInterval(updateMovers,30000);
+</script>
+
+<script id="V31-version-guard">
+document.title="Crypto Portfolio V31";
+document.addEventListener("DOMContentLoaded",function(){
+  document.title="Crypto Portfolio V31";
+  document.querySelectorAll(".version-ref-v25").forEach(function(e){e.textContent="V31";});
+});
+</script>
+</body>
+</html>
