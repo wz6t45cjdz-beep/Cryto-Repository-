@@ -1,0 +1,236 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crypto Portfolio V44</title><style>
+*{box-sizing:border-box}body{margin:0;background:#eef1f7;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.wrap{max-width:780px;margin:auto;padding:16px}.hero{background:linear-gradient(135deg,#111827,#312e81,#6d28d9);color:#fff;border-radius:24px;padding:23px}.hero{position:relative}
+.portfolioPL{position:absolute;right:4%;top:46%;display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
+.portfolioPL span{font-size:16px;color:#fff}
+.portfolioPL b{font-size:28px;color:#fff;margin-top:5px}
+.portfolioPL .small{font-size:14px;color:#fff;margin-top:3px}
+.portfolioPL.profit b{color:#22c55e}
+.portfolioPL.loss b{color:#ef4444}
+@media(max-width:520px){.portfolioPL{right:5%;top:43%}.portfolioPL b{font-size:21px}.portfolioPL span{font-size:13px}.portfolioPL .small{font-size:12px}}.total{font-size:40px;font-weight:800;margin-top:20px}.equiv{font-size:20px}.card{border-radius:20px;padding:17px;margin-top:14px;box-shadow:0 5px 18px #0001}h2{margin:0 0 13px}.greenCard{background:linear-gradient(135deg,#e8f8ed,#d8f3e1)}.blueCard{background:linear-gradient(135deg,#e8f2ff,#dbeafe)}.white{background:#fff}.coin{background:#ffffffbb;border-radius:17px;padding:14px;margin:11px 0}.head{display:flex;justify-content:space-between}.name{font-size:21px;font-weight:800}.inputs,.grid,.movers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.inputs{margin:12px 0}label,.small,.note{font-size:12px;color:#64748b}input{width:100%;margin-top:5px;padding:10px;border:1px solid #ccd4df;border-radius:10px;font-size:16px}.metric{background:#ffffffaa;border-radius:13px;padding:12px}.metric b{display:block;font-size:19px;margin-top:4px}.green{color:#15803d}.red{color:#b91c1c}.mover{background:#fff;border-radius:14px;padding:12px}.up{color:#15803d}.down{color:#b91c1c}@media(max-width:520px){.inputs,.grid,.movers{grid-template-columns:1fr}.total{font-size:34px}}.liveStatus{display:inline-flex;align-items:center;gap:7px;font-size:13px;margin-top:12px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#f59e0b;box-shadow:0 0 0 3px #ffffff22}
+.dot.live{background:#22c55e;box-shadow:0 0 0 3px #22c55e33}
+.dot.offline{background:#ef4444;box-shadow:0 0 0 3px #ef444433}
+.dot.connecting{background:#f59e0b;box-shadow:0 0 0 3px #f59e0b33}
+#lock{position:fixed;inset:0;background:linear-gradient(135deg,#111827,#312e81,#6d28d9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.lockbox{width:min(360px,100%);background:#fff;border-radius:24px;padding:24px;text-align:center;box-shadow:0 20px 60px #0005}.lockbox h2{margin:0 0 6px}.pin{font-size:30px;letter-spacing:8px;text-align:center;width:100%;padding:12px;border:1px solid #d1d5db;border-radius:12px;margin:16px 0}.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.keypad button{font-size:22px;padding:14px;border:0;border-radius:12px;background:#eef2ff}.lockmsg{height:20px;font-size:13px;color:#b91c1c}.locked{display:none!important}</style></head><body><div id="lock"><div class="lockbox"><h2>🔐 Crypto Portfolio</h2><div>Enter today's 5-digit PIN</div><input id="pinInput" class="pin" inputmode="numeric" maxlength="5" readonly><div class="lockmsg" id="lockMsg"></div><div class="keypad"><button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button data-k="C">⌫</button><button data-k="0">0</button><button data-k="OK">✓</button></div><div class="note" style="margin-top:12px">PIN changes automatically each day.</div></div></div><div class="wrap">
+<div class="hero"><h1>Crypto Portfolio</h1><div style="font-size:10px;opacity:.7;text-align:right">V44</div><div>Live Kraken market data</div><div class="total" id="totalUsd">$—</div><div class="equiv" id="totalGbp">£—</div><div class="portfolioPL"><span>Profit / Loss</span><b id="portfolioPnl">—</b><div class="small" id="portfolioPnlGbp"></div></div><div class="liveStatus"><span id="statusDot" class="dot connecting"></span><span id="status">Connecting to Kraken…</span></div></div>
+<div class="card white"><h2>Portfolio today</h2><div class="grid"><div class="metric"><span>Today's value change</span><b id="dayUsd">—</b><div class="small" id="dayGbp"></div></div><div class="metric"><span>Today's %</span><b id="dayPct">—</b></div></div></div>
+<div class="card greenCard"><h2>🟢 Your holdings</h2><div id="holdings"></div></div>
+<div class="card blueCard"><h2>🔵 Market benchmarks — USD</h2><div class="grid"><div class="metric"><span>Bitcoin (BTC)</span><b id="btcPrice">$—</b><div class="small" id="btcPct"></div></div><div class="metric"><span>Ethereum (ETH)</span><b id="ethPrice">$—</b><div class="small" id="ethPct"></div></div></div></div>
+<div class="card white"><h2>🔥 Top 4 movers today</h2><div class="movers" id="movers">Waiting for market data…</div><p class="note">Information only • Top positive 24h movers on Kraken with at least $1m 24h trading volume.</p></div>
+<div class="card white note">No Kraken login or API key is used. This tracker only reads public market data.</div></div>
+<script>
+(function(){
+const lock=document.getElementById("lock"),input=document.getElementById("pinInput"),msg=document.getElementById("lockMsg");let unlocked=false,timer;
+function expectedPin(){const d=new Date().getDate(),s=String(d).padStart(2,"0"),four=s+s,sum=[...four].reduce((a,n)=>a+Number(n),0);return four+String(sum%10)}
+function check(){if(input.value===expectedPin()){unlocked=true;lock.classList.add("locked");input.value="";msg.textContent="";reset()}else{msg.textContent="Incorrect PIN";input.value=""}}
+function reset(){clearTimeout(timer);if(unlocked)timer=setTimeout(()=>{unlocked=false;lock.classList.remove("locked");input.value="";msg.textContent="Session locked after 1 minute."},60000)}
+document.querySelectorAll(".keypad button").forEach(b=>b.onclick=()=>{let k=b.dataset.k;if(k==="C")input.value=input.value.slice(0,-1);else if(k==="OK")check();else if(input.value.length<5)input.value+=k});
+["touchstart","click","keydown","mousemove"].forEach(ev=>document.addEventListener(ev,()=>{if(unlocked)reset()},{passive:true}));
+})();
+const defaults={hbarAmt:"90000",hbarAvg:"",xrpAmt:"12000",xrpAvg:""};let s=JSON.parse(localStorage.getItem("cpv4")||"null")||defaults,prices={},movers=[],fx=.78,ws,reconnect;
+const usd=n=>n==null?"—":n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2}), usd3=n=>n==null?"—":n.toLocaleString("en-US",{style:"currency",currency:"USD",minimumFractionDigits:3,maximumFractionDigits:3}),gbp=n=>n==null?"—":n.toLocaleString("en-GB",{style:"currency",currency:"GBP",maximumFractionDigits:2});
+function put(id,v){document.getElementById(id).textContent=v}function col(id,n){let e=document.getElementById(id);e.className=n>=0?"green":"red"}
+function makeHoldings(){document.getElementById("holdings").innerHTML=["HBAR","XRP"].map(c=>{let k=c.toLowerCase();return `<div class="coin"><div class="head"><div class="name">${c}</div><div>HOLDING</div></div><div class="inputs"><div><label>Amount</label><input id="${k}Amt" type="number" step="any" value="${s[k+"Amt"]}"></div><div><label>Average buy price ($)</label><input id="${k}Avg" type="number" step="any" value="${s[k+"Avg"]}" placeholder="Optional"></div></div><div class="metric" style="margin-top:10px"><span>Total value</span><b id="${k}Value">—</b><div class="small" id="${k}ValueGbp"></div></div><div class="grid"><div class="metric"><span>Opening price today</span><b id="${k}Open">—</b><div class="small">00:00 UK time</div></div><div class="metric"><span>Live price</span><b id="${k}Price">—</b><div class="small" id="${k}Gbp"></div></div></div><div class="grid" style="margin-top:10px"><div class="metric"><span>Today</span><b id="${k}DayPct">—</b><div class="small">Since 00:00 UK</div></div><div class="metric"><span>Today's value change</span><b id="${k}DayValue">—</b><div class="small" id="${k}DayValueGbp"></div></div></div><div class="metric" style="margin-top:10px"><span>Profit / loss</span><b id="${k}Pnl">Add average buy price</b><div class="small" id="${k}PnlGbp"></div></div></div>`}).join("");for(const k of Object.keys(defaults)){let e=document.getElementById(k);e.oninput=()=>{s[k]=e.value;localStorage.setItem("cpv4",JSON.stringify(s));render()}}}
+
+let openings={};
+
+function ukMidnightTimestamp(){
+  const now=new Date();
+  const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/London",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(now);
+  const y=Number(parts.find(p=>p.type==="year").value);
+  const m=Number(parts.find(p=>p.type==="month").value);
+  const d=Number(parts.find(p=>p.type==="day").value);
+  // Test UTC candidates and select the epoch that formats as 00:00 in London.
+  const base=Date.UTC(y,m-1,d);
+  for(const off of [-0,-3600,3600,7200]){
+    const ts=base+off*1000;
+    const label=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/London",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(ts));
+    if(label==="00:00") return Math.floor(ts/1000);
+  }
+  return Math.floor(base/1000);
+}
+
+async function loadOpenings(){
+  const midnight=ukMidnightTimestamp();
+  const pairs=[["HBAR/USD","hbar"],["XRP/USD","xrp"]];
+  for(const [pair,key] of pairs){
+    try{
+      const url="https://api.kraken.com/0/public/OHLC?pair="+encodeURIComponent(pair)+"&interval=5&since="+Math.max(0,midnight-600);
+      const r=await fetch(url,{cache:"no-store"});
+      const j=await r.json();
+      const result=j.result||{};
+      const arr=Object.values(result).find(v=>Array.isArray(v));
+      if(!arr||!arr.length) continue;
+
+      // Prefer the candle whose start is exactly 00:00 UK time.
+      let candle=arr.find(c=>Number(c[0])===midnight);
+      // Fallback to the first candle at/after midnight, or the nearest candle.
+      if(!candle) candle=arr.find(c=>Number(c[0])>=midnight && Number(c[0])<midnight+600);
+      if(!candle) candle=arr[arr.length-1];
+
+      const open=Number(candle?.[1]);
+      if(Number.isFinite(open)&&open>0) openings[key]=open;
+    }catch(_){}
+  }
+  render();
+}
+
+function getPrice(symbol){
+  if(prices[symbol]) return prices[symbol];
+  const aliases={
+    "BTC/USD":["XBT/USD"],
+    "XBT/USD":["BTC/USD"],
+    "ETH/USD":["ETH/USD"],
+    "HBAR/USD":["HBAR/USD"],
+    "XRP/USD":["XRP/USD"]
+  };
+  for(const a of aliases[symbol]||[]) if(prices[a]) return prices[a];
+  return null;
+}
+
+function updateCoin(k,price,amount,opening){
+  if(!price) return {value:0,change:0,openingValue:0};
+  const p=Number(price.p), a=Number(amount)||0, op=Number(opening);
+  const value=a*p;
+
+  put(k+"Value",usd(value));
+  put(k+"ValueGbp",gbp(value*fx));
+  put(k+"Price",usd3(p));
+  put(k+"Gbp",gbp(p*fx));
+
+  if(Number.isFinite(op)&&op>0){
+    const pct=(p-op)/op*100;
+    const change=a*(p-op);
+    put(k+"Open",usd3(op));
+    put(k+"DayPct",(pct>=0?"+":"")+pct.toFixed(2)+"%");
+    put(k+"DayValue",usd(change));
+    put(k+"DayValueGbp",gbp(change*fx));
+    col(k+"DayPct",pct);
+    col(k+"DayValue",change);
+    return {value,change,openingValue:a*op};
+  }
+
+  put(k+"Open","—");
+  put(k+"DayPct","—");
+  put(k+"DayValue","—");
+  put(k+"DayValueGbp","");
+  return {value,change:0,openingValue:0};
+}
+
+async function loadBenchmarkFallback(){
+  for(const pair of ["BTC/USD","ETH/USD"]){
+    try{
+      if(getPrice(pair)) continue;
+      const r=await fetch("https://api.kraken.com/0/public/Ticker?pair="+encodeURIComponent(pair),{cache:"no-store"});
+      const j=await r.json();
+      const obj=Object.values(j.result||{})[0];
+      if(obj){
+        const p=Number(obj.c?.[0]), o=Number(obj.o), c=(Number.isFinite(p)&&Number.isFinite(o)&&o>0)?(p-o)/o*100:0;
+        if(Number.isFinite(p)&&p>0) prices[pair]={p,c};
+      }
+    }catch(_){}
+  }
+  render();
+}
+
+function render(){
+  const h=getPrice("HBAR/USD"), x=getPrice("XRP/USD");
+  const ha=Number(s.hbarAmt)||0, xa=Number(s.xrpAmt)||0;
+
+  const hr=updateCoin("hbar",h,ha,openings.hbar);
+  const xr=updateCoin("xrp",x,xa,openings.xrp);
+
+  const total=hr.value+xr.value;
+  const day=hr.change+xr.change;
+  const openingValue=hr.openingValue+xr.openingValue;
+
+  // Full portfolio Profit / Loss against the entered average buy prices.
+  const hAvg=Number(s.hbarAvg);
+  const xAvg=Number(s.xrpAvg);
+  const pricesReady=!!h&&!!x&&Number.isFinite(hAvg)&&Number.isFinite(xAvg);
+  const costBasis=(ha*hAvg)+(xa*xAvg);
+  const portfolioPnl=pricesReady ? total-costBasis : null;
+
+  put("totalUsd",usd(total));
+  put("totalGbp",gbp(total*fx));
+
+  const plEl=document.getElementById("portfolioPnl");
+  const plGbpEl=document.getElementById("portfolioPnlGbp");
+  const plBox=document.querySelector(".portfolioPL");
+  if(portfolioPnl===null){
+    put("portfolioPnl","—");
+    put("portfolioPnlGbp","");
+    if(plBox){plBox.classList.remove("profit","loss");}
+  }else{
+    put("portfolioPnl",(portfolioPnl>=0?"+":"")+usd(portfolioPnl));
+    put("portfolioPnlGbp",gbp(portfolioPnl*fx));
+    if(plBox){plBox.classList.toggle("profit",portfolioPnl>0);plBox.classList.toggle("loss",portfolioPnl<0);}
+  }
+
+  put("dayUsd",usd(day));
+  put("dayGbp",gbp(day*fx));
+
+  if(openingValue>0){
+    const pct=day/openingValue*100;
+    put("dayPct",(pct>=0?"+":"")+pct.toFixed(2)+"%");
+    col("dayUsd",day); col("dayPct",pct);
+  }else{
+    put("dayPct","—");
+  }
+
+  for(const [sym,id] of [["BTC/USD","btc"],["ETH/USD","eth"]]){
+    const p=getPrice(sym);
+    if(p){
+      put(id+"Price",usd(p.p));
+      put(id+"Pct",(p.c>=0?"+":"")+Number(p.c).toFixed(2)+"% today");
+      col(id+"Pct",Number(p.c));
+    }
+  }
+
+  for(const [k,avgKey] of [["hbar","hbarAvg"],["xrp","xrpAvg"]]){
+    const p=getPrice(k.toUpperCase()+"/USD");
+    const a=Number(s[k+"Amt"])||0, avg=Number(s[avgKey]);
+    if(p&&Number.isFinite(avg)){
+      const q=a*(Number(p.p)-avg);
+      put(k+"Pnl",usd(q)); put(k+"PnlGbp",gbp(q*fx)); col(k+"Pnl",q);
+    }
+  }
+}
+async function updateMovers(){
+ try{
+   const r=await fetch("https://api.kraken.com/0/public/Ticker",{cache:"no-store"});
+   const j=await r.json();
+   const candidates=[];
+   const stable=new Set(["USDT","USDC","USDC2","USDT2","USDC3","USDG","DAI","EUR","GBP","USDE","PYUSD","TUSD","USDS"]);
+   for(const [pair,t] of Object.entries(j.result||{})){
+     // Only USD spot markets: avoids counting the same coin multiple times
+     // through USD/EUR/GBP pairs and keeps the comparison in dollars.
+     if(!pair.endsWith("USD")) continue;
+     const last=Number(t.c?.[0]);
+     const open=Number(t.o);
+     const vol=Number(t.v?.[1] ?? t.v?.[0]);
+     if(!Number.isFinite(last)||!Number.isFinite(open)||open<=0||!Number.isFinite(vol)) continue;
+     const change=(last-open)/open*100;
+     if(change<=0) continue;
+     const raw=pair.slice(0,-3);
+     const symbol=raw.replace(/^XBT$/,"BTC").replace(/^X[A-Z]+/,"").replace(/^Z[A-Z]+/,"") || raw;
+     if(stable.has(symbol)) continue;
+     // Require at least $1m of 24h traded value.
+     const quoteVolume=vol*last;
+     if(quoteVolume<1000000) continue;
+     candidates.push({s:symbol,p:last,c:change,v:quoteVolume});
+   }
+   movers=candidates.sort((a,b)=>b.c-a.c).slice(0,4);
+   const box=document.getElementById("movers");
+   box.innerHTML=movers.length
+     ? movers.map(v=>`<div class="mover"><b>${v.s}</b><div class="up">+${v.c.toFixed(2)}%</div><div class="small">${usd(v.p)}</div></div>`).join("")
+     : "No qualifying positive movers";
+ }catch(e){}
+}
+function setStatus(state,text){
+ const d=document.getElementById("statusDot"), t=document.getElementById("status");
+ d.className="dot "+state; t.textContent=text;
+}
+function connect(){ws=new WebSocket("wss://ws.kraken.com/v2");ws.onopen=()=>{setStatus("live","Live — Kraken");ws.send(JSON.stringify({method:"subscribe",params:{channel:"ticker",symbol:["HBAR/USD","XRP/USD","BTC/USD","ETH/USD"],snapshot:true,event_trigger:"trades"}}))};ws.onmessage=e=>{try{let m=JSON.parse(e.data);if(m.channel==="ticker")for(let t of m.data||[]){let p=+t.last,c=+(t.change_pct??0);if(t.symbol&&p)prices[t.symbol]={p,c};render()}}catch(_){}};ws.onclose=()=>{setStatus("connecting","Reconnecting to Kraken…");reconnect=setTimeout(connect,4000)};ws.onerror=()=>{setStatus("offline","Offline — reconnecting…");try{ws.close()}catch(_){} } }
+makeHoldings();connect();loadOpenings();loadBenchmarkFallback();updateMovers();setInterval(updateMovers,30000);setInterval(loadOpenings,60000);setInterval(loadBenchmarkFallback,15000);setInterval(()=>{fetch("https://open.er-api.com/v6/latest/USD").then(r=>r.json()).then(j=>{if(j.rates?.GBP){fx=+j.rates.GBP;render()}}).catch(()=>{})},300000);
+</script></body></html>
